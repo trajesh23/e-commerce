@@ -20,8 +20,7 @@ namespace E_Commerce.Business.Mapping
                     .ReverseMap();
 
             CreateMap<GetUserDto, User>().ReverseMap();
-
-
+            CreateMap<UpdateUserDto, User>().ReverseMap();
         }
     }
 }

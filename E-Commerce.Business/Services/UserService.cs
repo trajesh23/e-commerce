@@ -1,5 +1,8 @@
-﻿using E_Commerce.Business.DTOs.UserDtos;
+﻿using AutoMapper;
+using E_Commerce.Business.DTOs.UserDtos;
 using E_Commerce.Business.Interfaces;
+using E_Commerce.DataAccess.Respositories.Interfaces;
+using E_Commerce.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,29 +13,50 @@ namespace E_Commerce.Business.Services
 {
     public class UserService : IUserService
     {
-        public Task CreateUserAsync(CreateUserDto createUserDto)
+        private readonly IUserRepository _userRepository;
+        private readonly IMapper _mapper;
+
+        public UserService(IUserRepository userRepository, IMapper mapper)
         {
-            throw new NotImplementedException();
+            _userRepository = userRepository;
+            _mapper = mapper;
         }
 
-        public Task DeleteUserByIdAsync(int id)
+        public async Task CreateUserAsync(CreateUserDto createUserDto)
         {
-            throw new NotImplementedException();
+            var newUser = _mapper.Map<User>(createUserDto);
+            await _userRepository.CreateAsync(newUser);
         }
 
-        public Task<GetUserDto> GetAllUsersAsync()
+        public async Task DeleteUserByIdAsync(int id)
         {
-            throw new NotImplementedException();
+            await _userRepository.DeleteByIdAsync(id);
         }
 
-        public Task<GetUserDto> GetUserByIdAsync(int id)
+        public async Task<IEnumerable<GetUserDto>> GetAllUsersAsync()
         {
-            throw new NotImplementedException();
+            var users = await _userRepository.GetAllAsync();
+
+            return _mapper.Map<IEnumerable<GetUserDto>>(users);
         }
 
-        public Task UpdateUserAsync(UpdateUserDto updateUserDto)
+        public async Task<GetUserDto> GetUserByIdAsync(int id)
         {
-            throw new NotImplementedException();
+            var user = await _userRepository.GetByIdAsync(id);
+
+            return _mapper.Map<GetUserDto>(user);
+        }
+
+        public async Task UpdateUserAsync(int id, UpdateUserDto updateUserDto)
+        {
+            var user = await _userRepository.GetByIdAsync(id);
+
+            if (user == null)
+                throw new Exception("User not found");
+
+            _mapper.Map(updateUserDto, user);
+
+            await _userRepository.UpdateAsync(user);
         }
     }
 }

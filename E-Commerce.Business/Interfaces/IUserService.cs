@@ -11,9 +11,9 @@ namespace E_Commerce.Business.Interfaces
     public interface IUserService 
     {
         Task CreateUserAsync(CreateUserDto createUserDto);
-        Task<GetUserDto> GetAllUsersAsync();
+        Task<IEnumerable<GetUserDto>> GetAllUsersAsync();
         Task<GetUserDto> GetUserByIdAsync(int id);
-        Task UpdateUserAsync(UpdateUserDto updateUserDto);
+        Task UpdateUserAsync(int id, UpdateUserDto updateUserDto);
         Task DeleteUserByIdAsync(int id);
     }
 }
