@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using E_Commerce.Business.DTOs;
 using E_Commerce.DataAccess.Context;
 using E_Commerce.DataAccess.Respositories.Interfaces;
 using E_Commerce.Domain.Entities;

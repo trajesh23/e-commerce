@@ -26,7 +26,7 @@ namespace E_Commerce.Business.DTOs.UserDtos
         public string Email { get; set; } = string.Empty;
 
         [Required]
-        [MinLength(10)]
+        [Phone(ErrorMessage = "Please enter a valid phone number.")]
         public string PhoneNumber { get; set; } = string.Empty;
 
         [Required]
