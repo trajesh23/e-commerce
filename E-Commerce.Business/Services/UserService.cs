@@ -6,7 +6,6 @@ using E_Commerce.DataAccess.Respositories.Interfaces;
 using E_Commerce.DataAccess.UnitOfWork.Interfaces;
 using E_Commerce.Domain.Entities;
 using E_Commerce.Domain.Enums;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 public class UserService : IUserService
 {
@@ -34,15 +33,7 @@ public class UserService : IUserService
         newUser.Role = UserRole.Customer;
 
         await _userRepository.CreateAsync(newUser);
-
-        try
-        {
-            await _unitOfWork.SaveChangesAsync();
-        }
-        catch (Exception ex)
-        {
-            throw new InvalidOperationException($"User creation failed. {ex.Message.ToList()}");
-        }
+        await SaveChangesAsync("User creation failed");
 
         return newUser.Id;
     }
@@ -50,20 +41,11 @@ public class UserService : IUserService
     public async Task DeleteUserByIdAsync(int id)
     {
         var user = await _userRepository.GetByIdAsync(id);
-
         if (user == null)
             throw new KeyNotFoundException($"User with id '{id}' not found.");
 
         await _userRepository.DeleteByIdAsync(id);
-
-        try
-        {
-            await _unitOfWork.SaveChangesAsync();
-        }
-        catch (Exception ex)
-        {
-            throw new InvalidOperationException($"Failed to delete user. {ex.Message.ToList()}");
-        }
+        await SaveChangesAsync("Failed to delete user.");
     }
 
     public async Task<IEnumerable<GetUserDto>> GetAllUsersAsync()
@@ -75,7 +57,6 @@ public class UserService : IUserService
     public async Task<GetUserDto> GetUserByIdAsync(int id)
     {
         var user = await _userRepository.GetByIdAsync(id);
-
         if (user == null)
             throw new KeyNotFoundException($"User with id '{id}' not found.");
 
@@ -85,20 +66,24 @@ public class UserService : IUserService
     public async Task UpdateUserAsync(int id, UpdateUserDto updateUserDto)
     {
         var user = await _userRepository.GetByIdAsync(id);
-
         if (user == null)
             throw new KeyNotFoundException($"User with id '{id}' not found.");
 
         _mapper.Map(updateUserDto, user);
+        await _userRepository.UpdateAsync(user);
+        await SaveChangesAsync("Failed to update user");
+    }
 
+    // Private helper method to handle save changes with consistent error handling
+    private async Task SaveChangesAsync(string errorMessage)
+    {
         try
         {
-            await _userRepository.UpdateAsync(user);
             await _unitOfWork.SaveChangesAsync();
         }
         catch (Exception ex)
         {
-            throw new InvalidOperationException($"Failed to update user. {ex.Message.ToList()}");
+            throw new InvalidOperationException($"{errorMessage}. Details: {ex.Message}");
         }
     }
 }
