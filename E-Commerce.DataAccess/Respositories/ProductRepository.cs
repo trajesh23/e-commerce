@@ -21,9 +21,6 @@ namespace E_Commerce.DataAccess.Respositories
 
         public async Task CreateAsync(Product entity)
         {
-            // Throw null if entity is null
-            ArgumentNullException.ThrowIfNull(entity);
-
             // Add to the database
             _context.Products.Add(entity);
             await _context.SaveChangesAsync();
@@ -34,11 +31,8 @@ namespace E_Commerce.DataAccess.Respositories
             // Find the order to be deleted
             var product = await _context.Products.FindAsync(id);
 
-            // If not found, throw and exception
-            ArgumentNullException.ThrowIfNull(product);
-
             // Remove order
-            _context.Products.Remove(product);
+            _context.Products.Remove(product!);
             await _context.SaveChangesAsync();
         }
 
@@ -52,17 +46,11 @@ namespace E_Commerce.DataAccess.Respositories
             // Find requested order
             var product = await _context.Products.FindAsync(id);
 
-            // Throw an exception if not found
-            ArgumentNullException.ThrowIfNull(product);
-
-            return product;
+            return product!;
         }
 
         public async Task UpdateAsync(Product entity)
         {
-            // Throw an exception if not found
-            ArgumentNullException.ThrowIfNull(entity);
-
             // Update order
             _context.Products.Update(entity);
             await _context.SaveChangesAsync();

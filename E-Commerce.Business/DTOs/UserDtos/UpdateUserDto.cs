@@ -1,6 +1,7 @@
 ﻿using E_Commerce.Domain.Enums;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
@@ -28,10 +29,11 @@ namespace E_Commerce.Business.DTOs.UserDtos
         [Phone(ErrorMessage = "Please enter a valid phone number.")]
         public string PhoneNumber { get; set; } = string.Empty;
 
-        [Required]
-        [MinLength(8)]
-        [RegularExpression(@"^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*?&]{8,}$", ErrorMessage = "Password must be at least 8 characters, contain letters and numbers.")]
-        public string Password { get; set; }
+        //[Required]
+        //[MinLength(8)]
+        //[RegularExpression(@"^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*?&]{8,}$", ErrorMessage = "Password must be at least 8 characters, contain letters and numbers.")]
+        //[DefaultValue("string")]
+        //public string Password { get; set; } = string.Empty;
 
         [Required]
         public UserRole Role { get; set; }

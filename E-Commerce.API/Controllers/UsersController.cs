@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using E_Commerce.DataAccess.Context;
-using E_Commerce.Domain.Entities;
 using E_Commerce.Business.Interfaces;
 using E_Commerce.Business.DTOs.UserDtos;
+using E_Commerce.Business.Types;
 
 namespace E_Commerce.API.Controllers
 {
@@ -25,10 +21,64 @@ namespace E_Commerce.API.Controllers
 
         // GET: api/Users
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<GetUserDto>>> GetUsers()
+        public async Task<ActionResult<IEnumerable<GetUserDto>>> GetUsersAsync()
         {
-            return Ok(await _userService.GetAllUsersAsync());
+            var users = await _userService.GetAllUsersAsync();
+
+            return Ok(new ServiceMessage<IEnumerable<GetUserDto>>
+            {
+                IsSucceed = true,
+                Count = users.Count(),
+                Data = users
+            });
         }
 
+        // GET: api/Users/{id}
+        [HttpGet("{id}")]
+        public async Task<ActionResult<ServiceMessage<GetUserDto>>> GetUserByIdAsync(int id)
+        {
+            var user = await _userService.GetUserByIdAsync(id);
+
+            return Ok(new ServiceMessage<GetUserDto>
+            {
+                IsSucceed = true,
+                Data = user
+            });
+        }
+
+        // POST: api/Users
+        [HttpPost]
+        public async Task<IActionResult> CreateUser([FromBody] CreateUserDto newUser)
+        {
+            var createdUserId = await _userService.CreateUserAsync(newUser);
+
+            return CreatedAtAction(nameof(GetUserByIdAsync), new { id = createdUserId }, newUser);
+        }
+
+        // PUT: api/Users/{id}
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateUser(int id, [FromBody] UpdateUserDto newUser)
+        {
+            await _userService.UpdateUserAsync(id, newUser);
+
+            return Ok(new ServiceMessage
+            {
+                IsSucceed = true,
+                Message = $"User with '{id}' id successfully updated."
+            });
+        }
+
+        // DELETE: api/Users/{id}
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteUserById(int id)
+        {
+            await _userService.DeleteUserByIdAsync(id);
+
+            return Ok(new ServiceMessage
+            {
+                IsSucceed = true,
+                Message = $"User with '{id}' id successfully deleted."
+            });
+        }
     }
 }

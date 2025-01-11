@@ -14,11 +14,7 @@ namespace E_Commerce.Business.Mapping
     {
         public UserProfile()
         {
-            CreateMap<CreateUserDto, User>()
-                    .ForMember(dest => dest.Password, opt => opt.Ignore())
-                    .ForMember(dest => dest.Role, opt => opt.MapFrom(src => src.Role))
-                    .ReverseMap();
-
+            CreateMap<CreateUserDto, User>().ReverseMap();
             CreateMap<GetUserDto, User>().ReverseMap();
             CreateMap<UpdateUserDto, User>().ReverseMap();
         }

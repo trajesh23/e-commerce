@@ -2,6 +2,7 @@
 using E_Commerce.Domain.Enums;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
@@ -11,8 +12,6 @@ namespace E_Commerce.Business.DTOs.UserDtos
 {
     public class CreateUserDto
     {
-        public int Id { get; set; }
-
         [Required]
         [StringLength(50, MinimumLength = 2, ErrorMessage = "First name must be minimum of 2, maximum of 50 characters.")]
         public string FirstName { get; set; } = string.Empty;
@@ -31,10 +30,10 @@ namespace E_Commerce.Business.DTOs.UserDtos
 
         [Required]
         [MinLength(8)]
-        [RegularExpression(@"^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*?&]{8,}$", ErrorMessage = "Password must be at least 8 characters, contain letters and numbers.")]
-        public string Password { get; set; }
+        [RegularExpression(@"^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*?&?_]{8,}$", ErrorMessage = "Password must be at least 8 characters, contain letters, numbers, and valid symbols.")]
+        [DefaultValue("string")]
+        public string Password { get; set; } = string.Empty;
 
-        [Required]
-        public UserRole Role { get; set; }
+        public UserRole Role { get; set; } = UserRole.Customer; // Default is customer
     }
 }

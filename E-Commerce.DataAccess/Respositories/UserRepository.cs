@@ -2,6 +2,7 @@
 using E_Commerce.DataAccess.Context;
 using E_Commerce.DataAccess.Respositories.Interfaces;
 using E_Commerce.Domain.Entities;
+using E_Commerce.Domain.Enums;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -23,15 +24,6 @@ namespace E_Commerce.DataAccess.Respositories
 
         public async Task CreateAsync(User entity)
         {
-            // Throw null if entity is null
-            ArgumentNullException.ThrowIfNull(entity);
-
-            // Password hashing
-            string hashedPassword = BCrypt.Net.BCrypt.HashPassword(entity.Password);
-
-            // Assign hashed password to new user
-            entity.Password = hashedPassword;
-
             // Add to the database
             await _context.Users.AddAsync(entity);
             await _context.SaveChangesAsync();
@@ -42,11 +34,8 @@ namespace E_Commerce.DataAccess.Respositories
             // Find the user to be deleted
             var user = await _context.Users.FindAsync(id);
 
-            // If not found, throw and exception
-            ArgumentNullException.ThrowIfNull(user);
-
             // Remove user
-            _context.Users.Remove(user);
+            _context.Users.Remove(user!);
             await _context.SaveChangesAsync();
         }
 
@@ -60,17 +49,11 @@ namespace E_Commerce.DataAccess.Respositories
             // Find requested user
             var user = await _context.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == id);
 
-            // Throw an exception if not found
-            ArgumentNullException.ThrowIfNull(user);
-
-            return user;
+            return user!;
         }
 
         public async Task UpdateAsync(User entity)
         {
-            // Throw an exception if not found
-            ArgumentNullException.ThrowIfNull(entity);
-
             // Update user
             _context.Users.Update(entity);
             await _context.SaveChangesAsync();
