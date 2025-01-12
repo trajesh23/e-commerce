@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using E_Commerce.Business.DTOs.OrderDtos;
+using E_Commerce.Business.DTOs.OrderProductDtos;
 using E_Commerce.Domain.Entities;
 using System;
 using System.Collections.Generic;
@@ -13,7 +14,9 @@ namespace E_Commerce.Business.Mapping
     {
         public OrderProfile()
         {
-            CreateMap<CreateOrderDto, Order>().ReverseMap();
+            CreateMap<CreateOrderDto, Order>()
+                    .ForMember(dest => dest.OrderProducts, opt => opt.MapFrom(src => new List<OrderProduct>()));
+
             CreateMap<UpdateOrderDto, Order>().ReverseMap();
             CreateMap<GetOrderDto, Order>().ReverseMap();
         }

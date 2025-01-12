@@ -1,4 +1,5 @@
-﻿using E_Commerce.Business.DTOs.ProductDtos;
+﻿using E_Commerce.Business.DTOs.OrderDtos;
+using E_Commerce.Business.DTOs.ProductDtos;
 using E_Commerce.Business.DTOs.UserDtos;
 using E_Commerce.Business.Interfaces;
 using E_Commerce.Business.Types;
@@ -48,9 +49,14 @@ namespace E_Commerce.API.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateProduct([FromBody] CreateProductDto newProduct)
         {
-            var createdProductId = await _productService.CreateAsync(newProduct);
+            await _productService.CreateAsync(newProduct);
 
-            return CreatedAtAction(nameof(GetProductByIdAsync), new { id = createdProductId }, newProduct);
+            return Ok(new ServiceMessage<CreateProductDto>
+            {
+                IsSucceed = true,
+                Message = $"Product successfully created.",
+                Data = newProduct
+            });
         }
 
         // PUT: api/Products/{id}

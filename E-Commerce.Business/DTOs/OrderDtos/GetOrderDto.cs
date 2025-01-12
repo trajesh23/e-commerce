@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using E_Commerce.Business.DTOs.OrderProductDtos;
 
 namespace E_Commerce.Business.DTOs.OrderDtos
 {
@@ -13,5 +14,6 @@ namespace E_Commerce.Business.DTOs.OrderDtos
         public DateTime OrderDate { get; set; }
         public decimal TotalAmount { get; set; }
         public int CustomerId { get; set; }
+        public ICollection<OrderProductDto> OrderProducts { get; set; }
     }
 }

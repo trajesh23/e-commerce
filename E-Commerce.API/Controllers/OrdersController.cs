@@ -50,9 +50,14 @@ namespace E_Commerce.API.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateOrder([FromBody] CreateOrderDto newOrder)
         {
-            var createdOrderId = await _orderService.CreateOrderAsync(newOrder);
+            await _orderService.CreateOrderAsync(newOrder);
 
-            return CreatedAtAction(nameof(GetOrderByIdAsync), new { id = createdOrderId }, newOrder);
+            return Ok(new ServiceMessage<CreateOrderDto>
+            {
+                IsSucceed = true,
+                Message = $"Order successfully created.",
+                Data = newOrder
+            });
         }
 
         // PUT: api/Orders/{id}

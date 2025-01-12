@@ -22,7 +22,7 @@ public class UserService : IUserService
         _unitOfWork = unitOfWork;
     }
 
-    public async Task<int> CreateUserAsync(CreateUserDto createUserDto)
+    public async Task CreateUserAsync(CreateUserDto createUserDto)
     {
         var newUser = _mapper.Map<User>(createUserDto);
 
@@ -34,8 +34,6 @@ public class UserService : IUserService
 
         await _userRepository.CreateAsync(newUser);
         await SaveChangesAsync("User creation failed");
-
-        return newUser.Id;
     }
 
     public async Task DeleteUserByIdAsync(int id)

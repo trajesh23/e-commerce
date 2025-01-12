@@ -17,7 +17,7 @@ namespace E_Commerce.Business.DTOs.ProductDtos
         public string ProductName { get; set; } = string.Empty;
 
         [Required]
-        [Range(0.01, double.MaxValue)]
+        [Range(0.01, double.MaxValue, ErrorMessage = "Price must be a minimum of 0.01.")]
         public decimal Price { get; set; }
 
         [Required]

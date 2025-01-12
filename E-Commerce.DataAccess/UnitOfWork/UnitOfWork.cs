@@ -1,41 +1,40 @@
 ﻿using E_Commerce.DataAccess.Context;
 using E_Commerce.DataAccess.Respositories.Interfaces;
+using E_Commerce.DataAccess.Respositories;
 using E_Commerce.DataAccess.UnitOfWork.Interfaces;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Storage;
 
-namespace E_Commerce.DataAccess.UnitOfWork
+public class UnitOfWork : IUnitOfWork
 {
-    public class UnitOfWork : IUnitOfWork
+    private readonly EcommerceContext _context;
+
+    private IUserRepository _userRepository;
+    private IProductRepository _productRepository;
+    private IOrderRepository _orderRepository;
+    private IOrderProductRepository _orderProductRepository;
+
+    public UnitOfWork(EcommerceContext context)
     {
-        private readonly EcommerceContext _context;
+        _context = context;
+    }
 
-        public IUserRepository Users { get; }
-        public IProductRepository Products { get; }
-        public IOrderRepository Orders { get; }
+    public IUserRepository Users => _userRepository ??= new UserRepository(_context);
+    public IProductRepository Products => _productRepository ??= new ProductRepository(_context);
+    public IOrderRepository Orders => _orderRepository ??= new OrderRepository(_context);
+    public IOrderProductRepository OrderProducts => _orderProductRepository ??= new OrderProductRepository(_context);
 
-        public UnitOfWork(EcommerceContext context,
-                          IUserRepository userRepository,
-                          IProductRepository productRepository,
-                          IOrderRepository orderRepository)
-        {
-            _context = context;
-            Users = userRepository;
-            Products = productRepository;
-            Orders = orderRepository;
-        }
+    public async Task SaveChangesAsync()
+    {
+        await _context.SaveChangesAsync();
+    }
 
-        public async Task SaveChangesAsync()
-        {
-            await _context.SaveChangesAsync();
-        }
-        public void Dispose()
-        {
-            _context.Dispose();
-        }
+    public async Task<IDbContextTransaction> BeginTransactionAsync()
+    {
+        return await _context.Database.BeginTransactionAsync();
+    }
+
+    public void Dispose()
+    {
+        _context.Dispose();
     }
 }

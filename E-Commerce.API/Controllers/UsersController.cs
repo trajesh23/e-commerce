@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using E_Commerce.Business.Interfaces;
 using E_Commerce.Business.DTOs.UserDtos;
 using E_Commerce.Business.Types;
+using E_Commerce.Business.DTOs.ProductDtos;
 
 namespace E_Commerce.API.Controllers
 {
@@ -50,9 +51,14 @@ namespace E_Commerce.API.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateUser([FromBody] CreateUserDto newUser)
         {
-            var createdUserId = await _userService.CreateUserAsync(newUser);
+            await _userService.CreateUserAsync(newUser);
 
-            return CreatedAtAction(nameof(GetUserByIdAsync), new { id = createdUserId }, newUser);
+            return Ok(new ServiceMessage<CreateUserDto>
+            {
+                IsSucceed = true,
+                Message = $"Product successfully created.",
+                Data = newUser
+            });
         }
 
         // PUT: api/Users/{id}

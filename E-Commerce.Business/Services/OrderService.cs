@@ -1,16 +1,22 @@
 ﻿using AutoMapper;
 using E_Commerce.Business.DTOs.OrderDtos;
+using E_Commerce.Business.DTOs.OrderProductDtos;
 using E_Commerce.Business.DTOs.UserDtos;
 using E_Commerce.Business.Interfaces;
+using E_Commerce.Business.Types;
 using E_Commerce.DataAccess.Respositories;
 using E_Commerce.DataAccess.Respositories.Interfaces;
 using E_Commerce.DataAccess.UnitOfWork.Interfaces;
 using E_Commerce.Domain.Entities;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Transactions;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace E_Commerce.Business.Services
 {
@@ -27,20 +33,78 @@ namespace E_Commerce.Business.Services
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<int> CreateOrderAsync(CreateOrderDto createOrderDto)
+        public async Task CreateOrderAsync(CreateOrderDto createOrderDto)
         {
-            var newOrder = _mapper.Map<Order>(createOrderDto);
-            await _orderRepository.CreateAsync(newOrder);
-            await SaveChangesAsync("Order creation failed.");
+            using var transaction = await _unitOfWork.BeginTransactionAsync();
 
-            return newOrder.Id;
+            try
+            {
+                var newOrder = _mapper.Map<Order>(createOrderDto);
+
+                decimal totalAmount = 0;
+
+                foreach (var orderProductDto in createOrderDto.OrderProducts)
+                {
+                    var product = await _unitOfWork.Products.GetByIdAsync(orderProductDto.ProductId);
+
+                    // Check if product exists
+                    if (product == null)
+                        throw new KeyNotFoundException($"Product with ID {orderProductDto.ProductId} not found.");
+
+                    // Check if stock quantity is less than requested quantity
+                    if (product.StockQuantity < orderProductDto.Quantity)
+                        throw new InvalidOperationException($"Insufficient stock for product with ID {orderProductDto.ProductId}.");
+                    
+                    // Decrease stock after order
+                    product.StockQuantity -= orderProductDto.Quantity;
+
+                    // Update decrease stock
+                    await _unitOfWork.Products.UpdateAsync(product);
+
+                    // Calculate total amount
+                    totalAmount += product.Price * orderProductDto.Quantity;
+
+                    // Add product id and quantity to OrderProduct table
+                    newOrder.OrderProducts.Add(new OrderProduct
+                    {
+                        ProductId = orderProductDto.ProductId,
+                        Quantity = orderProductDto.Quantity
+                    });
+                }
+
+                // Calculated amount equals order amount
+                newOrder.TotalAmount = totalAmount;
+                await _orderRepository.CreateAsync(newOrder);
+
+                // Save all changes
+                await _unitOfWork.SaveChangesAsync();
+                await transaction.CommitAsync();
+            }
+            catch
+            {
+                await transaction.RollbackAsync(); // Rollback transaction in an emergency
+                throw new Exception("An error occurred while creating an order. All operations rolling back.");
+            }
         }
+
 
         public async Task DeleteOrderByIdAsync(int id)
         {
             var order = await _orderRepository.GetByIdAsync(id);
             if (order == null)
                 throw new KeyNotFoundException($"Order with id '{id}' not found.");
+
+            // Return all stock back when an order deleted
+            foreach (var orderProduct in order.OrderProducts)
+            {
+                var product = await _unitOfWork.Products.GetByIdAsync(orderProduct.ProductId);
+
+                if (product != null)
+                {
+                    product.StockQuantity += orderProduct.Quantity;
+                    await _unitOfWork.Products.UpdateAsync(product);
+                }
+            }
 
             await _orderRepository.DeleteByIdAsync(id);
             await SaveChangesAsync("Failed to delete order.");
@@ -55,12 +119,24 @@ namespace E_Commerce.Business.Services
 
         public async Task<GetOrderDto> GetOrderByIdAsync(int id)
         {
+            // Order'ı ve ilişkili OrderProducts'ı çekiyoruz
             var order = await _orderRepository.GetByIdAsync(id);
 
             if (order == null)
                 throw new KeyNotFoundException($"Order with id '{id}' not found.");
 
-            return _mapper.Map<GetOrderDto>(order);   
+            return new GetOrderDto
+            {
+                Id = order.Id,
+                CustomerId = order.CustomerId,
+                OrderDate = order.OrderDate,
+                OrderProducts = order.OrderProducts.Select(op => new OrderProductDto
+                {
+                    ProductId = op.ProductId,
+                    Quantity = op.Quantity,
+                }).ToList(),
+                TotalAmount = order.TotalAmount,
+            };
         }
 
         public async Task UpdateAsync(int id, UpdateOrderDto updateOrderDto)
@@ -70,9 +146,70 @@ namespace E_Commerce.Business.Services
             if (order == null)
                 throw new KeyNotFoundException($"Order with id '{id}' not found.");
 
-            _mapper.Map(updateOrderDto, order);
-            await _orderRepository.UpdateAsync(order);
-            await SaveChangesAsync("Failed to update order.");
+            using var transaction = await _unitOfWork.BeginTransactionAsync();
+
+            try
+            {
+                // Bring all units back to stock
+                foreach (var orderProduct in order.OrderProducts)
+                {
+                    var product = await _unitOfWork.Products.GetByIdAsync(orderProduct.ProductId);
+
+                    if (product != null)
+                    {
+                        product.StockQuantity += orderProduct.Quantity; // Add stock back to product table
+                        await _unitOfWork.Products.UpdateAsync(product);
+                    }
+                }
+
+                order.OrderProducts.Clear(); // Clear products in order
+
+                decimal totalAmount = 0; // Set total amount to zero
+
+                // Take all products in the order 
+                foreach (var orderProductDto in updateOrderDto.OrderProducts)
+                {
+                    // Get the product from Products table
+                    var product = await _unitOfWork.Products.GetByIdAsync(orderProductDto.ProductId);
+                    if (product == null)
+                        throw new KeyNotFoundException($"Product with ID {orderProductDto.ProductId} not found.");
+
+                    // Check if stock is adequate
+                    if (product.StockQuantity < orderProductDto.Quantity)
+                        throw new InvalidOperationException($"Insufficient stock for product with ID {orderProductDto.ProductId}.");
+
+                    // Update stock quantity
+                    product.StockQuantity -= orderProductDto.Quantity;
+                    await _unitOfWork.Products.UpdateAsync(product);
+
+                    // Add new products to order
+                    order.OrderProducts.Add(new OrderProduct
+                    {
+                        ProductId = orderProductDto.ProductId,
+                        Quantity = orderProductDto.Quantity,
+                    });
+
+                    // Calculate new price
+                    totalAmount += product.Price * orderProductDto.Quantity;
+                }
+
+                // Update order information
+                order.TotalAmount = totalAmount;
+                order.CustomerId = updateOrderDto.CustomerId;
+                order.OrderDate = updateOrderDto.OrderDate;
+
+                await _unitOfWork.Orders.UpdateAsync(order);
+
+                // Save changes
+                await _unitOfWork.SaveChangesAsync();
+                await transaction.CommitAsync();
+            }
+            catch (Exception)
+            {
+                // Rollback in case of an error
+                await transaction.RollbackAsync();
+                throw new Exception("An error occurred while updating the order. All operations are rolling back.");
+            }
         }
 
         // Private helper method to handle save changes with consistent error handling

@@ -27,13 +27,11 @@ namespace E_Commerce.Business.Services
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<int> CreateAsync(CreateProductDto createProductDto)
+        public async Task CreateAsync(CreateProductDto createProductDto)
         {
             var newProduct = _mapper.Map<Product>(createProductDto);
             await _productRepository.CreateAsync(newProduct);
             await SaveChangesAsync("Product creation failed.");
-
-            return newProduct.Id;
         }
 
         public async Task DeleteByIdAsync(int id)

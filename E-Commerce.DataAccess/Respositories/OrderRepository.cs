@@ -1,5 +1,6 @@
 ﻿using E_Commerce.DataAccess.Context;
 using E_Commerce.DataAccess.Respositories.Interfaces;
+using E_Commerce.DataAccess.UnitOfWork.Interfaces;
 using E_Commerce.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -13,6 +14,7 @@ namespace E_Commerce.DataAccess.Respositories
     public class OrderRepository : IOrderRepository
     {
         private readonly EcommerceContext _context;
+        private readonly IUnitOfWork _unitOfWork;
 
         public OrderRepository(EcommerceContext context)
         {
@@ -44,7 +46,9 @@ namespace E_Commerce.DataAccess.Respositories
         public async Task<Order> GetByIdAsync(int id)
         {
             // Find requested order
-            var order = await _context.Orders.AsNoTracking().FirstOrDefaultAsync(u => u.Id == id);
+            var order = await _context.Orders
+                        .Include(o => o.OrderProducts) // İlişkili ürünleri yükle
+                        .FirstOrDefaultAsync(o => o.Id == id);
 
             return order!;
         }

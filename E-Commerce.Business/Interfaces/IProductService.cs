@@ -11,7 +11,7 @@ namespace E_Commerce.Business.Interfaces
     {
         Task<IEnumerable<GetProductDto>> GetAllAsync(); // Gets all data.
         Task<GetProductDto> GetByIdAsync(int id);      // Gets data by ID.
-        Task<int> CreateAsync(CreateProductDto createProductDto);        // Create a new resource.
+        Task CreateAsync(CreateProductDto createProductDto);        // Create a new resource.
         Task UpdateAsync(int id, UpdateProductDto updateProductDto);        // Updates existing data.
         Task DeleteByIdAsync(int id);      // Deletes data by ID.
     }
