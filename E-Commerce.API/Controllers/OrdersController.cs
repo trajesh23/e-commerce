@@ -1,9 +1,6 @@
 ﻿using E_Commerce.Business.DTOs.OrderDtos;
-using E_Commerce.Business.DTOs.UserDtos;
 using E_Commerce.Business.Interfaces;
 using E_Commerce.Business.Types;
-using E_Commerce.DataAccess.Respositories.Interfaces;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace E_Commerce.API.Controllers

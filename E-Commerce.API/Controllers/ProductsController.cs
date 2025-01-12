@@ -1,6 +1,4 @@
-﻿using E_Commerce.Business.DTOs.OrderDtos;
-using E_Commerce.Business.DTOs.ProductDtos;
-using E_Commerce.Business.DTOs.UserDtos;
+﻿using E_Commerce.Business.DTOs.ProductDtos;
 using E_Commerce.Business.Interfaces;
 using E_Commerce.Business.Types;
 using Microsoft.AspNetCore.Mvc;

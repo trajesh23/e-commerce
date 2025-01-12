@@ -1,11 +1,7 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using E_Commerce.Business.Interfaces;
 using E_Commerce.Business.DTOs.UserDtos;
 using E_Commerce.Business.Types;
-using E_Commerce.Business.DTOs.ProductDtos;
 
 namespace E_Commerce.API.Controllers
 {

@@ -1,15 +1,7 @@
-﻿using AutoMapper;
-using E_Commerce.DataAccess.Context;
+﻿using E_Commerce.DataAccess.Context;
 using E_Commerce.DataAccess.Respositories.Interfaces;
 using E_Commerce.Domain.Entities;
-using E_Commerce.Domain.Enums;
-using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace E_Commerce.DataAccess.Respositories
 {

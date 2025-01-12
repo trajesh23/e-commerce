@@ -1,13 +1,6 @@
 ﻿using E_Commerce.Business.DTOs.OrderProductDtos;
-using E_Commerce.Domain.Entities;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace E_Commerce.Business.DTOs.OrderDtos
 {

@@ -3,13 +3,11 @@ using E_Commerce.Business.Services;
 using E_Commerce.DataAccess.Context;
 using E_Commerce.DataAccess.Respositories.Interfaces;
 using E_Commerce.DataAccess.Respositories;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Web;
 using E_Commerce.Business.DataProtection;
 using E_Commerce.DataAccess.UnitOfWork.Interfaces;
-using E_Commerce.DataAccess.UnitOfWork;
 using E_Commerce.API.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -23,25 +21,26 @@ builder.Services.AddDbContext<EcommerceContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("Default"))
 );
 
-// Services
+// Repositories
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IOrderProductRepository, OrderProductRepository>();
-builder.Services.AddScoped<IDataProtection, DataProtection>();
-builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
+// Services
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IOrderProductService, OrderProductService>();
 
+// Workers
+builder.Services.AddScoped<IDataProtection, DataProtection>();
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 // AutoMapper
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -54,6 +53,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+// Middleware for global exception
 app.UseMiddleware<GlobalExceptionMiddleware>();
 
 app.UseHttpsRedirection();

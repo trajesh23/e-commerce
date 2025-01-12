@@ -1,12 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore.Query.Internal;
-using Microsoft.Identity.Client;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace E_Commerce.DataAccess.Respositories.Interfaces
+﻿namespace E_Commerce.DataAccess.Respositories.Interfaces
 {
     public interface IRepository<T> where T : class
     {

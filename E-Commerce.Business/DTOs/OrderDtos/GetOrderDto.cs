@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using E_Commerce.Business.DTOs.OrderProductDtos;
+﻿using E_Commerce.Business.DTOs.OrderProductDtos;
 
 namespace E_Commerce.Business.DTOs.OrderDtos
 {

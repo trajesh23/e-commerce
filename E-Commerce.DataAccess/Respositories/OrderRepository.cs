@@ -1,20 +1,13 @@
 ﻿using E_Commerce.DataAccess.Context;
 using E_Commerce.DataAccess.Respositories.Interfaces;
-using E_Commerce.DataAccess.UnitOfWork.Interfaces;
 using E_Commerce.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace E_Commerce.DataAccess.Respositories
 {
     public class OrderRepository : IOrderRepository
     {
         private readonly EcommerceContext _context;
-        private readonly IUnitOfWork _unitOfWork;
 
         public OrderRepository(EcommerceContext context)
         {

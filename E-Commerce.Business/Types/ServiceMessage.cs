@@ -1,11 +1,4 @@
-﻿using Microsoft.Identity.Client;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace E_Commerce.Business.Types
+﻿namespace E_Commerce.Business.Types
 {
     public class ServiceMessage
     {

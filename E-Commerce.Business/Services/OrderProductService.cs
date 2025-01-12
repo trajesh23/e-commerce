@@ -1,13 +1,7 @@
 ﻿using AutoMapper;
 using E_Commerce.Business.DTOs.OrderProductDtos;
 using E_Commerce.Business.Interfaces;
-using E_Commerce.DataAccess.Respositories;
 using E_Commerce.DataAccess.Respositories.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace E_Commerce.Business.Services
 {

@@ -1,22 +1,11 @@
 ﻿using AutoMapper;
 using E_Commerce.Business.DTOs.OrderDtos;
 using E_Commerce.Business.DTOs.OrderProductDtos;
-using E_Commerce.Business.DTOs.UserDtos;
 using E_Commerce.Business.Interfaces;
-using E_Commerce.Business.Types;
-using E_Commerce.DataAccess.Respositories;
 using E_Commerce.DataAccess.Respositories.Interfaces;
 using E_Commerce.DataAccess.UnitOfWork.Interfaces;
 using E_Commerce.Domain.Entities;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions;
-using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Transactions;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace E_Commerce.Business.Services
 {
@@ -64,7 +53,7 @@ namespace E_Commerce.Business.Services
                     // Calculate total amount
                     totalAmount += product.Price * orderProductDto.Quantity;
 
-                    // Add product id and quantity to OrderProduct table
+                    // Add product id and quantity to order
                     newOrder.OrderProducts.Add(new OrderProduct
                     {
                         ProductId = orderProductDto.ProductId,

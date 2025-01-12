@@ -1,7 +1,5 @@
 ﻿using E_Commerce.DataAccess.Respositories.Interfaces;
 using Microsoft.EntityFrameworkCore.Storage;
-using System;
-using System.Threading.Tasks;
 
 namespace E_Commerce.DataAccess.UnitOfWork.Interfaces
 {
