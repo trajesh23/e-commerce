@@ -1,6 +1,7 @@
 ﻿using E_Commerce.Business.DTOs.OrderDtos;
 using E_Commerce.Business.Interfaces;
 using E_Commerce.Business.Types;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace E_Commerce.API.Controllers
@@ -18,6 +19,7 @@ namespace E_Commerce.API.Controllers
 
         // GET: api/Orders
         [HttpGet]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<IEnumerable<GetOrderDto>>> GetOrdersAsync()
         {
             var orders = await _orderService.GetAllOrdersAsync();
@@ -32,6 +34,7 @@ namespace E_Commerce.API.Controllers
 
         // GET: api/Orders/{id}
         [HttpGet("{id}")]
+        [Authorize]
         public async Task<ActionResult<ServiceMessage<GetOrderDto>>> GetOrderByIdAsync(int id)
         {
             var order = await _orderService.GetOrderByIdAsync(id);
@@ -45,6 +48,7 @@ namespace E_Commerce.API.Controllers
 
         // POST: api/Orders
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> CreateOrder([FromBody] CreateOrderDto newOrder)
         {
             await _orderService.CreateOrderAsync(newOrder);
@@ -59,6 +63,7 @@ namespace E_Commerce.API.Controllers
 
         // PUT: api/Orders/{id}
         [HttpPut("{id}")]
+        [Authorize]
         public async Task<IActionResult> UpdateOrder(int id, [FromBody] UpdateOrderDto orderToUpdate)
         {
             await _orderService.UpdateAsync(id, orderToUpdate);
@@ -72,6 +77,7 @@ namespace E_Commerce.API.Controllers
 
         // DELETE: api/Users/{id}
         [HttpDelete("{id}")]
+        [Authorize]
         public async Task<IActionResult> DeleteOrderById(int id)
         {
             await _orderService.DeleteOrderByIdAsync(id);

@@ -5,7 +5,7 @@ namespace E_Commerce.Business.DTOs.UserDtos
 {
     public class UpdateUserDto
     {
-        public int Id { get; set; }
+        public string Id { get; set; }
 
         [Required]
         [StringLength(50, MinimumLength = 2, ErrorMessage = "First name must be minimum of 2, maximum of 50 characters.")]
@@ -26,7 +26,6 @@ namespace E_Commerce.Business.DTOs.UserDtos
         //[Required]
         //[MinLength(8)]
         //[RegularExpression(@"^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*?&]{8,}$", ErrorMessage = "Password must be at least 8 characters, contain letters and numbers.")]
-        //[DefaultValue("string")]
         //public string Password { get; set; } = string.Empty;
 
         [Required]

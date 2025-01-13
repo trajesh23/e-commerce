@@ -1,60 +1,66 @@
 ﻿using AutoMapper;
-using E_Commerce.Business.DataProtection;
 using E_Commerce.Business.DTOs.UserDtos;
 using E_Commerce.Business.Interfaces;
-using E_Commerce.DataAccess.Respositories.Interfaces;
-using E_Commerce.DataAccess.UnitOfWork.Interfaces;
 using E_Commerce.Domain.Entities;
 using E_Commerce.Domain.Enums;
+using Microsoft.AspNetCore.Identity;
 
 public class UserService : IUserService
 {
-    private readonly IUserRepository _userRepository;
+    private readonly UserManager<User> _userManager;
     private readonly IMapper _mapper;
-    private readonly IDataProtection _protector;
-    private readonly IUnitOfWork _unitOfWork;
 
-    public UserService(IUserRepository userRepository, IMapper mapper, IDataProtection protector, IUnitOfWork unitOfWork)
+    public UserService(UserManager<User> userManager, IMapper mapper)
     {
-        _userRepository = userRepository;
+        _userManager = userManager;
         _mapper = mapper;
-        _protector = protector;
-        _unitOfWork = unitOfWork;
     }
 
     public async Task CreateUserAsync(CreateUserDto createUserDto)
     {
         var newUser = _mapper.Map<User>(createUserDto);
 
-        // Password hashing
-        //newUser.Password = _protector.Protect(createUserDto.Password);
+        // Kullanıcı adı boş ise e-posta adresini kullanıcı adı olarak ayarla
+        newUser.UserName = createUserDto.Email.Split('@')[0]; // E-posta adresinin '@' öncesi kısmını kullan
 
-        // Assign default role
-        newUser.Role = UserRole.Customer;
+        // Varsayılan rol ata
+        newUser.Role = createUserDto.Role;
 
-        await _userRepository.CreateAsync(newUser);
-        await SaveChangesAsync("User creation failed");
+        // Kullanıcı oluştur ve şifreyi hashle
+        var result = await _userManager.CreateAsync(newUser, createUserDto.Password);
+
+        if (!result.Succeeded)
+        {
+            var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+            throw new InvalidOperationException($"User creation failed: {errors}");
+        }
     }
+
 
     public async Task DeleteUserByIdAsync(string id)
     {
-        var user = await _userRepository.GetByIdAsync(id);
+        var user = await _userManager.FindByIdAsync(id);
         if (user == null)
             throw new KeyNotFoundException($"User with id '{id}' not found.");
 
-        await _userRepository.DeleteByIdAsync(id);
-        await SaveChangesAsync("Failed to delete user.");
+        var result = await _userManager.DeleteAsync(user);
+
+        if (!result.Succeeded)
+        {
+            var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+            throw new InvalidOperationException($"Failed to delete user: {errors}");
+        }
     }
 
     public async Task<IEnumerable<GetUserDto>> GetAllUsersAsync()
     {
-        var users = await _userRepository.GetAllAsync();
+        var users = _userManager.Users.ToList();
         return _mapper.Map<IEnumerable<GetUserDto>>(users);
     }
 
     public async Task<GetUserDto> GetUserByIdAsync(string id)
     {
-        var user = await _userRepository.GetByIdAsync(id);
+        var user = await _userManager.FindByIdAsync(id);
         if (user == null)
             throw new KeyNotFoundException($"User with id '{id}' not found.");
 
@@ -63,25 +69,18 @@ public class UserService : IUserService
 
     public async Task UpdateUserAsync(string id, UpdateUserDto updateUserDto)
     {
-        var user = await _userRepository.GetByIdAsync(id);
+        var user = await _userManager.FindByIdAsync(id);
         if (user == null)
             throw new KeyNotFoundException($"User with id '{id}' not found.");
 
+        // Update user properties
         _mapper.Map(updateUserDto, user);
-        await _userRepository.UpdateAsync(user);
-        await SaveChangesAsync("Failed to update user");
-    }
 
-    // Private helper method to handle save changes with consistent error handling
-    private async Task SaveChangesAsync(string errorMessage)
-    {
-        try
+        var result = await _userManager.UpdateAsync(user);
+        if (!result.Succeeded)
         {
-            await _unitOfWork.SaveChangesAsync();
-        }
-        catch (Exception ex)
-        {
-            throw new InvalidOperationException($"{errorMessage}. Details: {ex.Message}");
+            var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+            throw new InvalidOperationException($"Failed to update user: {errors}");
         }
     }
 }
