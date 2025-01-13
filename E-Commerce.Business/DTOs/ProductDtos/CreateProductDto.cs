@@ -4,7 +4,7 @@ namespace E_Commerce.Business.DTOs.ProductDtos
 {
     public class CreateProductDto
     {
-        public int Id { get; set; }
+        public string Id { get; set; }
 
         [Required]
         [StringLength(100, MinimumLength = 2, ErrorMessage = "Product name must be minimum 2, maximum 100 characters long.")]

@@ -16,7 +16,7 @@ namespace E_Commerce.Business.DTOs.OrderDtos
         public decimal TotalAmount { get; set; }
 
         [Required]
-        public int CustomerId { get; set; }
+        public string CustomerId { get; set; }
 
         [Required]
         public ICollection<OrderProductDto> OrderProducts { get; set; }

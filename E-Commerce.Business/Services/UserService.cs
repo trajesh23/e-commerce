@@ -27,7 +27,7 @@ public class UserService : IUserService
         var newUser = _mapper.Map<User>(createUserDto);
 
         // Password hashing
-        newUser.Password = _protector.Protect(createUserDto.Password);
+        //newUser.Password = _protector.Protect(createUserDto.Password);
 
         // Assign default role
         newUser.Role = UserRole.Customer;
@@ -36,7 +36,7 @@ public class UserService : IUserService
         await SaveChangesAsync("User creation failed");
     }
 
-    public async Task DeleteUserByIdAsync(int id)
+    public async Task DeleteUserByIdAsync(string id)
     {
         var user = await _userRepository.GetByIdAsync(id);
         if (user == null)
@@ -52,7 +52,7 @@ public class UserService : IUserService
         return _mapper.Map<IEnumerable<GetUserDto>>(users);
     }
 
-    public async Task<GetUserDto> GetUserByIdAsync(int id)
+    public async Task<GetUserDto> GetUserByIdAsync(string id)
     {
         var user = await _userRepository.GetByIdAsync(id);
         if (user == null)
@@ -61,7 +61,7 @@ public class UserService : IUserService
         return _mapper.Map<GetUserDto>(user);
     }
 
-    public async Task UpdateUserAsync(int id, UpdateUserDto updateUserDto)
+    public async Task UpdateUserAsync(string id, UpdateUserDto updateUserDto)
     {
         var user = await _userRepository.GetByIdAsync(id);
         if (user == null)

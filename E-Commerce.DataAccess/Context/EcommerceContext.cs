@@ -1,19 +1,19 @@
 ﻿using E_Commerce.Domain.Entities;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using System.Runtime.CompilerServices;
 
 namespace E_Commerce.DataAccess.Context
 {
-    public class EcommerceContext : DbContext
+    public class EcommerceContext : IdentityDbContext<User>
     {
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderProduct> OrderProducts { get; set; }
         public DbSet<Product> Products { get; set; }
-        public DbSet<User> Users { get; set; }
 
-
-        public EcommerceContext() { }
         public EcommerceContext(DbContextOptions<EcommerceContext> options) : base(options) { }
 
+        // Added to impede design time db context factory error
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
@@ -24,103 +24,36 @@ namespace E_Commerce.DataAccess.Context
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            base.OnModelCreating(modelBuilder);
+            base.OnModelCreating(modelBuilder); // Identity tablolarını ekle
 
+            // Order Konfigürasyonu
             modelBuilder.Entity<Order>(entity =>
-            { 
-                // Primary Key
+            {
                 entity.HasKey(o => o.Id);
 
-                // OrderDate required
-                entity.Property(o => o.OrderDate)
-                      .IsRequired();
-                
-                // TotalAmount required
-                entity.Property(o => o.TotalAmount)
-                      .IsRequired()
-                      .HasColumnType("decimal(18,2)"); // Precision for TotalAmount
+                entity.Property(o => o.OrderDate).IsRequired();
 
-                // One to Many relationship between customer and order
+                entity.Property(o => o.TotalAmount).IsRequired().HasColumnType("decimal(18,2)");
+
                 entity.HasOne(o => o.Customer)
                       .WithMany(c => c.Orders)
                       .HasForeignKey(o => o.CustomerId)
-                      .OnDelete(DeleteBehavior.Cascade); // Delete orders if customer deleted
-
-                // One to Many relationship between order and products
-                entity.HasMany(o => o.OrderProducts)
-                      .WithOne()
-                      .HasForeignKey(op => op.OrderId);
+                      .OnDelete(DeleteBehavior.Cascade);
             });
 
+            // Product Konfigürasyonu
             modelBuilder.Entity<Product>(entity =>
             {
-                // Primary Key
                 entity.HasKey(o => o.Id);
 
-                // Product
-                entity.Property(o => o.ProductName)
-                      .IsRequired()
-                      .HasMaxLength(128);
+                entity.Property(o => o.ProductName).IsRequired().HasMaxLength(128);
 
-                // Price
-                entity.Property(o => o.Price)
-                      .IsRequired()
-                      .HasColumnType("decimal(18,2)");
+                entity.Property(o => o.Price).IsRequired().HasColumnType("decimal(18,2)");
 
-                // Stock Quantity
-                entity.Property(o => o.StockQuantity)
-                      .IsRequired();
-
-                // Order Products
-                entity.HasMany(o => o.OrderProducts)
-                      .WithOne()
-                      .HasForeignKey(o => o.ProductId);
+                entity.Property(o => o.StockQuantity).IsRequired();
             });
 
-
-            modelBuilder.Entity<User>(entity =>
-            {
-                // Primary Key
-                entity.HasKey(u => u.Id);
-
-                // FirstName zorunlu ve maksimum uzunluk 50 karakter
-                entity.Property(u => u.FirstName)
-                      .IsRequired()
-                      .HasMaxLength(50);
-
-                // LastName zorunlu ve maksimum uzunluk 50 karakter
-                entity.Property(u => u.LastName)
-                      .IsRequired()
-                      .HasMaxLength(50);
-
-                // Email zorunlu, benzersiz ve maksimum uzunluk 100 karakter
-                entity.Property(u => u.Email)
-                      .IsRequired()
-                      .HasMaxLength(100);
-
-                entity.HasIndex(u => u.Email)
-                      .IsUnique(); // Email benzersiz
-
-                // PhoneNumber opsiyonel, maksimum uzunluk 15 karakter
-                entity.Property(u => u.PhoneNumber)
-                      .HasMaxLength(15);
-
-                // Password zorunlu
-                entity.Property(u => u.Password)
-                      .IsRequired();
-
-                // Role zorunlu
-                entity.Property(u => u.Role)
-                      .IsRequired();
-
-                // Orders ile One-to-Many ilişki
-                entity.HasMany(u => u.Orders)
-                      .WithOne(o => o.Customer)
-                      .HasForeignKey(o => o.CustomerId)
-                      .OnDelete(DeleteBehavior.Cascade); // Müşteri silindiğinde siparişler de silinir
-            });
-
-
+            // OrderProduct Konfigürasyonu
             modelBuilder.Entity<OrderProduct>(entity =>
             {
                 entity.HasKey(o => new { o.OrderId, o.ProductId });
@@ -135,8 +68,7 @@ namespace E_Commerce.DataAccess.Context
                       .HasForeignKey(o => o.ProductId)
                       .OnDelete(DeleteBehavior.Cascade);
 
-                entity.Property(o => o.Quantity)
-                      .IsRequired();
+                entity.Property(o => o.Quantity).IsRequired();
             });
         }
     }

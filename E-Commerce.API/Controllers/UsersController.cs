@@ -32,7 +32,7 @@ namespace E_Commerce.API.Controllers
 
         // GET: api/Users/{id}
         [HttpGet("{id}")]
-        public async Task<ActionResult<ServiceMessage<GetUserDto>>> GetUserByIdAsync(int id)
+        public async Task<ActionResult<ServiceMessage<GetUserDto>>> GetUserByIdAsync(string id)
         {
             var user = await _userService.GetUserByIdAsync(id);
 
@@ -59,7 +59,7 @@ namespace E_Commerce.API.Controllers
 
         // PUT: api/Users/{id}
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateUser(int id, [FromBody] UpdateUserDto newUser)
+        public async Task<IActionResult> UpdateUser(string id, [FromBody] UpdateUserDto newUser)
         {
             await _userService.UpdateUserAsync(id, newUser);
 
@@ -72,7 +72,7 @@ namespace E_Commerce.API.Controllers
 
         // DELETE: api/Users/{id}
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteUserById(int id)
+        public async Task<IActionResult> DeleteUserById(string id)
         {
             await _userService.DeleteUserByIdAsync(id);
 

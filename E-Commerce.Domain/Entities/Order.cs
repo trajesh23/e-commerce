@@ -14,7 +14,7 @@ namespace E_Commerce.Domain.Entities
         public decimal TotalAmount { get; set; }
 
         [ForeignKey("CustomerId")]
-        public int CustomerId { get; set; }
+        public string CustomerId { get; set; }
         public User Customer { get; set; }
 
         public ICollection<OrderProduct> OrderProducts { get; set; }

@@ -21,7 +21,7 @@ namespace E_Commerce.DataAccess.Respositories
             await _context.SaveChangesAsync();
         }
 
-        public async Task DeleteByIdAsync(int id)
+        public async Task DeleteByIdAsync(string id)
         {
             // Find the user to be deleted
             var user = await _context.Users.FindAsync(id);
@@ -36,7 +36,7 @@ namespace E_Commerce.DataAccess.Respositories
             return await _context.Users.ToListAsync(); // Get all users in a list
         }
 
-        public async Task<User> GetByIdAsync(int id)
+        public async Task<User> GetByIdAsync(string id)
         {
             // Find requested user
             var user = await _context.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == id);

@@ -6,8 +6,8 @@ namespace E_Commerce.Business.Interfaces
     {
         Task CreateUserAsync(CreateUserDto createUserDto);
         Task<IEnumerable<GetUserDto>> GetAllUsersAsync();
-        Task<GetUserDto> GetUserByIdAsync(int id);
-        Task UpdateUserAsync(int id, UpdateUserDto updateUserDto);
-        Task DeleteUserByIdAsync(int id);
+        Task<GetUserDto> GetUserByIdAsync(string id);
+        Task UpdateUserAsync(string id, UpdateUserDto updateUserDto);
+        Task DeleteUserByIdAsync(string id);
     }
 }

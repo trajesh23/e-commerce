@@ -1,20 +1,55 @@
 using E_Commerce.Business.Interfaces;
 using E_Commerce.Business.Services;
-using E_Commerce.DataAccess.Context;
 using E_Commerce.DataAccess.Respositories.Interfaces;
 using E_Commerce.DataAccess.Respositories;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Identity.Web;
-using E_Commerce.Business.DataProtection;
 using E_Commerce.DataAccess.UnitOfWork.Interfaces;
 using E_Commerce.API.Middlewares;
+using E_Commerce.DataAccess.Context;
+using E_Commerce.Domain.Entities;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using E_Commerce.Business.DataProtection;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddMicrosoftIdentityWebApi(builder.Configuration.GetSection("AzureAd"));
+
+// *** Identity Configuration ***
+builder.Services.AddIdentity<User, IdentityRole>(options =>
+{
+    options.Password.RequireDigit = true;
+    options.Password.RequiredLength = 6;
+    options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequireUppercase = true;
+    options.Password.RequireLowercase = true;
+    options.User.RequireUniqueEmail = true;
+})
+.AddEntityFrameworkStores<EcommerceContext>()
+.AddDefaultTokenProviders();
+
+// *** JWT Configuration ***
+var jwtSettings = builder.Configuration.GetSection("JwtSettings");
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = jwtSettings["Issuer"],
+        ValidAudience = jwtSettings["Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["SecretKey"]))
+    };
+});
 
 // Database connection
 builder.Services.AddDbContext<EcommerceContext>(options =>
@@ -46,6 +81,9 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
+// Middleware for global exception
+app.UseMiddleware<GlobalExceptionMiddleware>();
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -53,11 +91,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-// Middleware for global exception
-app.UseMiddleware<GlobalExceptionMiddleware>();
-
 app.UseHttpsRedirection();
 
+app.UseAuthentication(); // Added to enable JWT Authentication
 app.UseAuthorization();
 
 app.MapControllers();
