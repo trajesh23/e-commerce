@@ -44,14 +44,6 @@ namespace E_Commerce.DataAccess.Respositories
             return orderProduct!;
         }
 
-        //public async Task<OrderProduct> GetByProductIdAsync(int id)
-        //{
-        //    // Find requested order
-        //    var productOrder = await _context.OrderProducts.FirstOrDefaultAsync(o => o.ProductId == id);
-
-        //    return productOrder!;
-        //}
-
         public async Task UpdateAsync(OrderProduct entity)
         {
             // Update order
