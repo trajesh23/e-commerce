@@ -28,7 +28,7 @@ namespace E_Commerce.API.Middlewares
 
             // User Role
             var userRole = context.User.Claims.FirstOrDefault(o =>
-                o.Type == ClaimTypes.Role)?.Value;
+                o.Type == "role")?.Value;
 
             if (userId == null)
             {
@@ -41,7 +41,7 @@ namespace E_Commerce.API.Middlewares
             stopwatch.Stop();
 
             _logger.LogInformation("Request: {RequestUrl}, Time: {RequestTime}, User: {UserId}, Role: {UserRole}, Duration: {Duration}ms",
-                requestUrl, requestTime, userRole, userId, stopwatch.ElapsedMilliseconds);
+                requestUrl, requestTime, userId, userRole, stopwatch.ElapsedMilliseconds);
         }
     }
 }

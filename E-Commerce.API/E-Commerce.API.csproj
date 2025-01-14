@@ -28,10 +28,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="logs\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\E-Commerce.Business\E-Commerce.Business.csproj" />
   </ItemGroup>
 
