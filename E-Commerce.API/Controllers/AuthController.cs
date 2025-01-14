@@ -1,10 +1,13 @@
 ﻿using E_Commerce.Business.DTOs.AuthDtos.LoginDtos;
 using E_Commerce.Business.DTOs.AuthDtos.SignUpDtos;
+using E_Commerce.Business.Types;
 using E_Commerce.Domain.Entities;
 using E_Commerce.Domain.Enums;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using NuGet.Common;
+using Serilog;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -51,7 +54,11 @@ public class AuthController : ControllerBase
             return BadRequest(new { Message = "Sign up failed.", Errors = errors });
         }
 
-        return Ok(new { Message = "User successfully created." });
+        return Ok(new ServiceMessage
+        {
+            IsSucceed = true,
+            Message = "User successfully created."
+        });
     }
 
 
@@ -65,7 +72,11 @@ public class AuthController : ControllerBase
         }
 
         var token = GenerateJwtToken(user);
-        return Ok(new { token });
+        return Ok(new ServiceMessage
+        {
+            IsSucceed = true,
+            Message = token
+        });
     }
 
     private string GenerateJwtToken(User user)
@@ -75,11 +86,10 @@ public class AuthController : ControllerBase
         var claims = new[]
         {
             new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-            new Claim(JwtRegisteredClaimNames.Email, user.Email),
-            new Claim(ClaimTypes.Role, user.Role.ToString())
+            new Claim(JwtRegisteredClaimNames.Email, user.Email!),
         };
 
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["SecretKey"]));
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["SecretKey"]!));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
         var token = new JwtSecurityToken(

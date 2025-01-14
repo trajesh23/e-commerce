@@ -1,36 +1,43 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Serilog;
+using Microsoft.Extensions.Logging;
+using System.Diagnostics;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace E_Commerce.API.Middlewares
 {
     public class RequestLoggingMiddleware
     {
         private readonly RequestDelegate _next;
+        private readonly ILogger<RequestLoggingMiddleware> _logger;
 
-        public RequestLoggingMiddleware(RequestDelegate next)
+        public RequestLoggingMiddleware(RequestDelegate next, ILogger<RequestLoggingMiddleware> logger)
         {
             _next = next;
+            _logger = logger;
         }
 
         public async Task InvokeAsync(HttpContext context)
         {
-            // İstek URL'si ve zamanı
             var requestUrl = context.Request.Path;
-            var requestTime = DateTime.UtcNow;
+            var requestTime = DateTime.Now;
 
-            // Kullanıcı kimliği
-            var userId = context.User.Identity?.IsAuthenticated == true
-                ? context.User.Identity.Name
-                : "Anonymous";
+            // User Id
+            var userId = context.User.Claims.FirstOrDefault(o => 
+                o.Type == JwtRegisteredClaimNames.Sub)?.Value;
 
-            // Loglama
-            Log.Information("Request: {RequestUrl}, Time: {RequestTime}, User: {UserId}",
-                requestUrl, requestTime, userId);
+            if (userId == null)
+            {
+                userId = "Anonymous";
+                _logger.LogWarning("No userId found for the request at {RequestTime}. URL: {RequestUrl}", requestTime, requestUrl);
+            }
 
-            // Bir sonraki middleware'e geç
+            var stopwatch = Stopwatch.StartNew();
             await _next(context);
+            stopwatch.Stop();
+
+            _logger.LogInformation("Request: {RequestUrl}, Time: {RequestTime}, User: {UserId}, Duration: {Duration}ms",
+                requestUrl, requestTime, userId, stopwatch.ElapsedMilliseconds);
         }
     }
-
-
 }

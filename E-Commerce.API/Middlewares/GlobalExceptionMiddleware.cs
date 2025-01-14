@@ -1,4 +1,6 @@
-﻿namespace E_Commerce.API.Middlewares
+﻿using Microsoft.AspNetCore.Http;
+
+namespace E_Commerce.API.Middlewares
 {
     public class GlobalExceptionMiddleware
     {
@@ -31,6 +33,7 @@
 
             var statusCode = ex switch
             {
+                UnauthorizedAccessException => StatusCodes.Status401Unauthorized,
                 KeyNotFoundException => StatusCodes.Status404NotFound,
                 InvalidOperationException => StatusCodes.Status400BadRequest,
                 _ => StatusCodes.Status500InternalServerError
@@ -42,7 +45,7 @@
             {
                 statusCode,
                 message = ex.Message,
-                details = statusCode == StatusCodes.Status500InternalServerError ? "An unexpected error occurred." : null
+                details = $"An unexpected error ({statusCode}) occurred."
             };
 
             await context.Response.WriteAsJsonAsync(response);

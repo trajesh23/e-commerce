@@ -47,7 +47,7 @@ namespace E_Commerce.Business.Services
                     // Decrease stock after order
                     product.StockQuantity -= orderProductDto.Quantity;
 
-                    // Update decrease stock
+                    // Decrease stock
                     await _unitOfWork.Products.UpdateAsync(product);
 
                     // Calculate total amount
@@ -59,6 +59,9 @@ namespace E_Commerce.Business.Services
                         ProductId = orderProductDto.ProductId,
                         Quantity = orderProductDto.Quantity
                     });
+
+                    // Set order time 
+                    newOrder.OrderDate = DateTime.Now;
                 }
 
                 // Calculated amount equals order amount

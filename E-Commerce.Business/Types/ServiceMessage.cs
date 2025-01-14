@@ -1,8 +1,12 @@
-﻿namespace E_Commerce.Business.Types
+﻿using System.ComponentModel;
+
+namespace E_Commerce.Business.Types
 {
     public class ServiceMessage
     {
         public bool IsSucceed { get; set; }
+
+        [DefaultValue(0)]
         public int Count { get; set; }
         public string Message { get; set; } = string.Empty;
     }
