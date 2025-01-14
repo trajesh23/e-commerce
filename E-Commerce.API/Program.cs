@@ -64,12 +64,14 @@ builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IOrderProductRepository, OrderProductRepository>();
+builder.Services.AddScoped<ISettingRepository, SettingRepository>();
 
 // Services
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IOrderProductService, OrderProductService>();
+builder.Services.AddScoped<ISettingService, SettingService>();
 
 // Workers
 builder.Services.AddScoped<IDataProtection, DataProtection>();
@@ -116,7 +118,7 @@ Log.Logger = new LoggerConfiguration()
     .ReadFrom.Configuration(builder.Configuration)
     .Enrich.FromLogContext()
     .WriteTo.Console() // Konsola loglama
-    .WriteTo.File("logs/log-.txt", rollingInterval: RollingInterval.Day) // Günlük dosyaya loglama
+    .WriteTo.File("Middlewares/logs/log-.txt", rollingInterval: RollingInterval.Day) // Günlük dosyaya loglama
     .CreateLogger();
 
 // Use Serilog
@@ -125,7 +127,15 @@ builder.Host.UseSerilog();
 var app = builder.Build();
 
 // Middlewares
+app.UseMiddleware<MaintenanceMiddleware>();
 app.UseMiddleware<GlobalExceptionMiddleware>();
+
+app.UseCors(builder =>
+{
+    builder.AllowAnyOrigin()
+           .AllowAnyMethod()
+           .AllowAnyHeader();
+});
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

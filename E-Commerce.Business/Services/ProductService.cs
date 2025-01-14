@@ -64,6 +64,9 @@ namespace E_Commerce.Business.Services
             if (product == null)
                 throw new Exception("Product not found");
 
+            // Assign modified date
+            product.ModifiedDate = DateTime.Now;
+
             _mapper.Map(entity, product);
             await _productRepository.UpdateAsync(product);
             await SaveChangesAsync("Failed to update product.");

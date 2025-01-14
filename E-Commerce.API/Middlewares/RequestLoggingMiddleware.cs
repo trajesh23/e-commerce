@@ -26,6 +26,10 @@ namespace E_Commerce.API.Middlewares
             var userId = context.User.Claims.FirstOrDefault(o => 
                 o.Type == JwtRegisteredClaimNames.Sub)?.Value;
 
+            // User Role
+            var userRole = context.User.Claims.FirstOrDefault(o =>
+                o.Type == ClaimTypes.Role)?.Value;
+
             if (userId == null)
             {
                 userId = "Anonymous";
@@ -36,8 +40,8 @@ namespace E_Commerce.API.Middlewares
             await _next(context);
             stopwatch.Stop();
 
-            _logger.LogInformation("Request: {RequestUrl}, Time: {RequestTime}, User: {UserId}, Duration: {Duration}ms",
-                requestUrl, requestTime, userId, stopwatch.ElapsedMilliseconds);
+            _logger.LogInformation("Request: {RequestUrl}, Time: {RequestTime}, User: {UserId}, Role: {UserRole}, Duration: {Duration}ms",
+                requestUrl, requestTime, userRole, userId, stopwatch.ElapsedMilliseconds);
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using E_Commerce.Domain.Entities;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
 namespace E_Commerce.DataAccess.Context
@@ -10,6 +11,7 @@ namespace E_Commerce.DataAccess.Context
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderProduct> OrderProducts { get; set; }
         public DbSet<Product> Products { get; set; }
+        public DbSet<Setting> Settings { get; set; }
 
         public EcommerceContext(DbContextOptions<EcommerceContext> options) : base(options) { }
 
@@ -24,9 +26,9 @@ namespace E_Commerce.DataAccess.Context
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            base.OnModelCreating(modelBuilder); // Identity tablolarını ekle
+            base.OnModelCreating(modelBuilder);
 
-            // Order Konfigürasyonu
+            // Order Configuration
             modelBuilder.Entity<Order>(entity =>
             {
                 entity.HasKey(o => o.Id);
@@ -41,7 +43,7 @@ namespace E_Commerce.DataAccess.Context
                       .OnDelete(DeleteBehavior.Cascade);
             });
 
-            // Product Konfigürasyonu
+            // Product Configuration
             modelBuilder.Entity<Product>(entity =>
             {
                 entity.HasKey(o => o.Id);
@@ -53,7 +55,7 @@ namespace E_Commerce.DataAccess.Context
                 entity.Property(o => o.StockQuantity).IsRequired();
             });
 
-            // OrderProduct Konfigürasyonu
+            // OrderProduct Configuration
             modelBuilder.Entity<OrderProduct>(entity =>
             {
                 entity.HasKey(o => new { o.OrderId, o.ProductId });
@@ -69,6 +71,16 @@ namespace E_Commerce.DataAccess.Context
                       .OnDelete(DeleteBehavior.Cascade);
 
                 entity.Property(o => o.Quantity).IsRequired();
+            });
+
+            modelBuilder.Entity<Setting>(entity =>
+            {
+                entity.HasData(
+                    new Setting 
+                    { 
+                        Id = 1,
+                        MaintenanceMode = false 
+                    });
             });
         }
     }

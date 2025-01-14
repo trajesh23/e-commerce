@@ -1,4 +1,5 @@
-﻿using E_Commerce.Business.DTOs.ProductDtos;
+﻿using E_Commerce.API.Filters;
+using E_Commerce.Business.DTOs.ProductDtos;
 using E_Commerce.Business.Interfaces;
 using E_Commerce.Business.Types;
 using Microsoft.AspNetCore.Authorization;
@@ -49,6 +50,7 @@ namespace E_Commerce.API.Controllers
         // POST: api/Products
         [HttpPost]
         [Authorize(Roles = "Admin")]
+        [TimeControlFilter]
         public async Task<IActionResult> CreateProduct([FromBody] CreateProductDto newProduct)
         {
             await _productService.CreateAsync(newProduct);
@@ -64,6 +66,7 @@ namespace E_Commerce.API.Controllers
         // PUT: api/Products/{id}
         [HttpPut("{id}")]
         [Authorize(Roles = "Admin")]
+        [TimeControlFilter]
         public async Task<IActionResult> UpdateProduct(int id, [FromBody] UpdateProductDto newProduct)
         {
             await _productService.UpdateAsync(id, newProduct);
@@ -78,6 +81,7 @@ namespace E_Commerce.API.Controllers
         // DELETE: api/Products/{id}
         [HttpDelete("{id}")]
         [Authorize(Roles = "Admin")]
+        [TimeControlFilter]
         public async Task<IActionResult> DeleteProductById(int id)
         {
             await _productService.DeleteByIdAsync(id);

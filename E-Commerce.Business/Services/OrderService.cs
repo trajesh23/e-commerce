@@ -179,6 +179,7 @@ namespace E_Commerce.Business.Services
                     {
                         ProductId = orderProductDto.ProductId,
                         Quantity = orderProductDto.Quantity,
+                        OrderModifiedDate = DateTime.Now,
                     });
 
                     // Calculate new price
@@ -188,7 +189,7 @@ namespace E_Commerce.Business.Services
                 // Update order information
                 order.TotalAmount = totalAmount;
                 order.CustomerId = updateOrderDto.CustomerId;
-                order.OrderDate = updateOrderDto.OrderDate;
+                order.ModifiedDate = DateTime.Now;
 
                 await _unitOfWork.Orders.UpdateAsync(order);
 

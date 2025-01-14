@@ -11,6 +11,7 @@ namespace E_Commerce.Domain.Entities
     {
         public int Id { get; set; }
         public DateTime OrderDate { get; set; }
+        public DateTime? ModifiedDate { get; set; }
         public decimal TotalAmount { get; set; }
 
         [ForeignKey("CustomerId")]
