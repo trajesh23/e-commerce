@@ -8,11 +8,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Validators\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="AutoMapper" Version="13.0.1" />
+    <PackageReference Include="Iyzipay" Version="2.1.66" />
     <PackageReference Include="Microsoft.AspNetCore.DataProtection.Abstractions" Version="8.0.11" />
   </ItemGroup>
 

@@ -19,6 +19,7 @@ namespace E_Commerce.API.Middlewares
 
         public async Task InvokeAsync(HttpContext context)
         {
+            var requestMethod = context.Request.Method;
             var requestUrl = context.Request.Path;
             var requestTime = DateTime.Now;
 
@@ -26,9 +27,12 @@ namespace E_Commerce.API.Middlewares
             var userId = context.User.Claims.FirstOrDefault(o => 
                 o.Type == JwtRegisteredClaimNames.Sub)?.Value;
 
+            // User Ip
+            var userIp = context.Connection.RemoteIpAddress;
+
             // User Role
             var userRole = context.User.Claims.FirstOrDefault(o =>
-                o.Type == "role")?.Value;
+                o.Type == ClaimTypes.Role)?.Value;
 
             if (userId == null)
             {
@@ -40,8 +44,10 @@ namespace E_Commerce.API.Middlewares
             await _next(context);
             stopwatch.Stop();
 
-            _logger.LogInformation("Request: {RequestUrl}, Time: {RequestTime}, User: {UserId}, Role: {UserRole}, Duration: {Duration}ms",
-                requestUrl, requestTime, userId, userRole, stopwatch.ElapsedMilliseconds);
+            var requestStatus = context.Response.StatusCode;
+
+            _logger.LogInformation("Request:{RequestMethod} {RequestUrl}, Response: {RequestStatus}, Time: {RequestTime}, IP: {UserIp} User: {UserId}, Role: {UserRole}, Duration: {Duration}ms",
+                requestMethod, requestUrl, requestStatus, requestTime, userIp, userId, userRole, stopwatch.ElapsedMilliseconds);
         }
     }
 }

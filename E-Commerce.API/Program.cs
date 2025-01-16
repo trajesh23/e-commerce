@@ -117,8 +117,8 @@ builder.Services.AddSwaggerGen(c =>
 Log.Logger = new LoggerConfiguration()
     .ReadFrom.Configuration(builder.Configuration)
     .Enrich.FromLogContext()
-    .WriteTo.Console() // Konsola loglama
-    .WriteTo.File("Middlewares/logs/log-.txt", rollingInterval: RollingInterval.Day) // Günlük dosyaya loglama
+    .WriteTo.Console() // Console logging
+    .WriteTo.File("Middlewares/logs/log-.txt", rollingInterval: RollingInterval.Day) // File logging
     .CreateLogger();
 
 // Use Serilog

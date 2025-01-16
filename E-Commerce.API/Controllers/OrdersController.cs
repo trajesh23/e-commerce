@@ -4,89 +4,88 @@ using E_Commerce.Business.Types;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace E_Commerce.API.Controllers
+
+[Route("api/[controller]")]
+[ApiController]
+public class OrdersController : ControllerBase
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class OrdersController : ControllerBase
+    private readonly IOrderService _orderService;
+
+    public OrdersController(IOrderService orderService)
     {
-        private readonly IOrderService _orderService;
+        _orderService = orderService;
+    }
 
-        public OrdersController(IOrderService orderService)
+    // GET: api/Orders
+    [HttpGet]
+    [Authorize(Roles = "Admin")]
+    public async Task<ActionResult<IEnumerable<GetOrderDto>>> GetOrdersAsync()
+    {
+        var orders = await _orderService.GetAllOrdersAsync();
+
+        return Ok(new ServiceMessage<IEnumerable<GetOrderDto>>
         {
-            _orderService = orderService;
-        }
+            IsSucceed = true,
+            Count = orders.Count(),
+            Data = orders
+        });
+    }
 
-        // GET: api/Orders
-        [HttpGet]
-        [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<IEnumerable<GetOrderDto>>> GetOrdersAsync()
+    // GET: api/Orders/{id}
+    [HttpGet("{id}")]
+    [Authorize]
+    public async Task<ActionResult<ServiceMessage<GetOrderDto>>> GetOrderByIdAsync(int id)
+    {
+        var order = await _orderService.GetOrderByIdAsync(id);
+
+        return Ok(new ServiceMessage<GetOrderDto>
         {
-            var orders = await _orderService.GetAllOrdersAsync();
+            IsSucceed = true,
+            Data = order
+        });
+    }
 
-            return Ok(new ServiceMessage<IEnumerable<GetOrderDto>>
-            {
-                IsSucceed = true,
-                Count = orders.Count(),
-                Data = orders
-            });
-        }
+    // POST: api/Orders
+    [HttpPost]
+    [Authorize]
+    public async Task<IActionResult> CreateOrder([FromBody] CreateOrderDto newOrder)
+    {
+        await _orderService.CreateOrderAsync(newOrder);
 
-        // GET: api/Orders/{id}
-        [HttpGet("{id}")]
-        [Authorize]
-        public async Task<ActionResult<ServiceMessage<GetOrderDto>>> GetOrderByIdAsync(int id)
+        return Ok(new ServiceMessage<CreateOrderDto>
         {
-            var order = await _orderService.GetOrderByIdAsync(id);
+            IsSucceed = true,
+            Message = $"Order successfully created.",
+            Data = newOrder
+        });
+    }
 
-            return Ok(new ServiceMessage<GetOrderDto>
-            {
-                IsSucceed = true,
-                Data = order
-            });
-        }
+    // PUT: api/Orders/{id}
+    [HttpPut("{id}")]
+    [Authorize]
+    public async Task<IActionResult> UpdateOrder(int id, [FromBody] UpdateOrderDto orderToUpdate)
+    {
+        await _orderService.UpdateAsync(id, orderToUpdate);
 
-        // POST: api/Orders
-        [HttpPost]
-        [Authorize]
-        public async Task<IActionResult> CreateOrder([FromBody] CreateOrderDto newOrder)
+        return Ok(new ServiceMessage
         {
-            await _orderService.CreateOrderAsync(newOrder);
+            IsSucceed = true,
+            Message = $"Order with '{id}' id successfully updated."
+        });
+    }
 
-            return Ok(new ServiceMessage<CreateOrderDto>
-            {
-                IsSucceed = true,
-                Message = $"Order successfully created.",
-                Data = newOrder
-            });
-        }
+    // DELETE: api/Users/{id}
+    [HttpDelete("{id}")]
+    [Authorize]
+    public async Task<IActionResult> DeleteOrderById(int id)
+    {
+        await _orderService.DeleteOrderByIdAsync(id);
 
-        // PUT: api/Orders/{id}
-        [HttpPut("{id}")]
-        [Authorize]
-        public async Task<IActionResult> UpdateOrder(int id, [FromBody] UpdateOrderDto orderToUpdate)
+        return Ok(new ServiceMessage
         {
-            await _orderService.UpdateAsync(id, orderToUpdate);
-
-            return Ok(new ServiceMessage
-            {
-                IsSucceed = true,
-                Message = $"Order with '{id}' id successfully updated."
-            });
-        }
-
-        // DELETE: api/Users/{id}
-        [HttpDelete("{id}")]
-        [Authorize]
-        public async Task<IActionResult> DeleteOrderById(int id)
-        {
-            await _orderService.DeleteOrderByIdAsync(id);
-
-            return Ok(new ServiceMessage
-            {
-                IsSucceed = true,
-                Message = $"Order with '{id}' id successfully deleted."
-            });
-        }
+            IsSucceed = true,
+            Message = $"Order with '{id}' id successfully deleted."
+        });
     }
 }
+
