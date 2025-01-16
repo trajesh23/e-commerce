@@ -9,6 +9,7 @@ namespace E_Commerce.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class ProductsController : Controller
     {
         private readonly IProductService _productService;
@@ -20,7 +21,6 @@ namespace E_Commerce.API.Controllers
 
         // GET: api/Products
         [HttpGet]
-        [Authorize]
         public async Task<ActionResult<IEnumerable<GetProductDto>>> GetProductsAsync()
         {
             var products = await _productService.GetAllAsync();
@@ -35,7 +35,6 @@ namespace E_Commerce.API.Controllers
 
         // GET: api/Products/{id}
         [HttpGet("{id}")]
-        [Authorize]
         public async Task<ActionResult<ServiceMessage<GetProductDto>>> GetProductByIdAsync(int id)
         {
             var product = await _productService.GetByIdAsync(id);

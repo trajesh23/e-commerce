@@ -8,7 +8,7 @@ namespace E_Commerce.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize] // Tüm endpoint'ler için yetkilendirme gereklidir
+    [Authorize] // All endpoints required authorization
     public class UsersController : ControllerBase
     {
         private readonly IUserService _userService;
@@ -20,7 +20,6 @@ namespace E_Commerce.API.Controllers
 
         // GET: api/Users
         [HttpGet]
-        [Authorize(Roles = "Admin")] // Only admin
         public async Task<ActionResult<IEnumerable<GetUserDto>>> GetUsersAsync()
         {
             var users = await _userService.GetAllUsersAsync();
@@ -35,7 +34,6 @@ namespace E_Commerce.API.Controllers
 
         // GET: api/Users/{id}
         [HttpGet("{id}")]
-        [Authorize] // Every user
         public async Task<ActionResult<ServiceMessage<GetUserDto>>> GetUserByIdAsync(string id)
         {
             var user = await _userService.GetUserByIdAsync(id);

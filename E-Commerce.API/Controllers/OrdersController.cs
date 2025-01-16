@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 
 [Route("api/[controller]")]
 [ApiController]
+[Authorize]
 public class OrdersController : ControllerBase
 {
     private readonly IOrderService _orderService;
@@ -33,7 +34,6 @@ public class OrdersController : ControllerBase
 
     // GET: api/Orders/{id}
     [HttpGet("{id}")]
-    [Authorize]
     public async Task<ActionResult<ServiceMessage<GetOrderDto>>> GetOrderByIdAsync(int id)
     {
         var order = await _orderService.GetOrderByIdAsync(id);
@@ -41,13 +41,13 @@ public class OrdersController : ControllerBase
         return Ok(new ServiceMessage<GetOrderDto>
         {
             IsSucceed = true,
+            Message = $"Orders successfully fetched.",
             Data = order
         });
     }
 
     // POST: api/Orders
     [HttpPost]
-    [Authorize]
     public async Task<IActionResult> CreateOrder([FromBody] CreateOrderDto newOrder)
     {
         await _orderService.CreateOrderAsync(newOrder);
@@ -62,7 +62,6 @@ public class OrdersController : ControllerBase
 
     // PUT: api/Orders/{id}
     [HttpPut("{id}")]
-    [Authorize]
     public async Task<IActionResult> UpdateOrder(int id, [FromBody] UpdateOrderDto orderToUpdate)
     {
         await _orderService.UpdateAsync(id, orderToUpdate);
@@ -76,7 +75,6 @@ public class OrdersController : ControllerBase
 
     // DELETE: api/Users/{id}
     [HttpDelete("{id}")]
-    [Authorize]
     public async Task<IActionResult> DeleteOrderById(int id)
     {
         await _orderService.DeleteOrderByIdAsync(id);

@@ -14,6 +14,7 @@ using System.Text;
 using E_Commerce.Business.DataProtection;
 using Microsoft.OpenApi.Models;
 using Serilog;
+using E_Commerce.Business.Helpers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -72,6 +73,7 @@ builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IOrderProductService, OrderProductService>();
 builder.Services.AddScoped<ISettingService, SettingService>();
+builder.Services.AddScoped<JwtTokenGenerator>();
 
 // Workers
 builder.Services.AddScoped<IDataProtection, DataProtection>();

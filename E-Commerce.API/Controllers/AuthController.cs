@@ -1,5 +1,6 @@
 ﻿using E_Commerce.Business.DTOs.AuthDtos.LoginDtos;
 using E_Commerce.Business.DTOs.AuthDtos.SignUpDtos;
+using E_Commerce.Business.Helpers;
 using E_Commerce.Business.Types;
 using E_Commerce.Domain.Entities;
 using E_Commerce.Domain.Enums;
@@ -19,11 +20,13 @@ public class AuthController : ControllerBase
 {
     private readonly UserManager<User> _userManager;
     private readonly IConfiguration _configuration;
+    private readonly JwtTokenGenerator _jwtTokenGenerator;
 
-    public AuthController(UserManager<User> userManager, IConfiguration configuration)
+    public AuthController(UserManager<User> userManager, IConfiguration configuration, JwtTokenGenerator jwtTokenGenerator)
     {
         _userManager = userManager;
         _configuration = configuration;
+        _jwtTokenGenerator = jwtTokenGenerator;
     }
 
     // POST: api/Auth/signup
@@ -72,36 +75,11 @@ public class AuthController : ControllerBase
             return Unauthorized("Invalid email or password.");
         }
 
-        var token = GenerateJwtToken(user);
+        var token = _jwtTokenGenerator.GenerateToken(user);
         return Ok(new ServiceMessage
         {
             IsSucceed = true,
             Message = token
         });
-    }
-
-    private string GenerateJwtToken(User user)
-    {
-        var jwtSettings = _configuration.GetSection("JwtSettings");
-
-        var claims = new[]
-        {
-            new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-            new Claim(JwtRegisteredClaimNames.Email, user.Email!),
-            new Claim(ClaimTypes.Role, user.Role.ToString())
-        };
-
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["SecretKey"]!));
-        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
-        var token = new JwtSecurityToken(
-            issuer: jwtSettings["Issuer"],
-            audience: jwtSettings["Audience"],
-            claims: claims,
-            expires: DateTime.Now.AddMinutes(Convert.ToDouble(jwtSettings["TokenLifetime"])),
-            signingCredentials: creds
-        );
-
-        return new JwtSecurityTokenHandler().WriteToken(token);
     }
 }
